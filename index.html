@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mmaah Kiosk Beklebung</title>
+<meta name="description" content="Mmaah Kiosk im Bahnhof: zwölf Varianten für die Beklebung der Flächen 1 bis 6, visualisiert mit Raytracing.">
+<meta property="og:title" content="Mmaah Kiosk Beklebung">
+<meta property="og:description" content="Vierzehn Varianten für die Flächen 1 bis 6, visualisiert mit Raytracing.">
+<meta property="og:image" content="https://nadercbz.github.io/mmaah-kiosk-beklebung/img/hero_v3_m.jpg">
+<meta name="theme-color" content="#FCFAF7">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--o:#FF4005;--a:#4F0423;--b:#3B8BFF;--c:#FCFAF7;--ink:#2a1019;--mute:#7b6a70;--line:#eadfd8;--card:#fff}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--c);color:var(--ink);font:500 16px/1.5 Archivo,system-ui,sans-serif}
+a{color:inherit}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px}
+header{padding:22px 0 10px}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top svg{width:150px;height:auto;flex:none}
+.kicker{font-weight:800;color:var(--o);letter-spacing:.04em;text-transform:uppercase;font-size:13px}
+h1{font-weight:900;text-transform:uppercase;line-height:.9;letter-spacing:-.01em;font-size:clamp(34px,6.4vw,76px);margin:14px 0 6px}
+h1 span{color:var(--o)}
+.lead{max-width:760px;color:var(--mute);margin:0 0 6px}
+
+/* Umschalter */
+.switch{position:sticky;top:0;z-index:20;background:rgba(252,250,247,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch .wrap{padding-top:10px;padding-bottom:10px}
+.groups{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}
+.gbtn{appearance:none;border:0;background:#efe7e2;color:var(--a);border-radius:12px;padding:8px 6px;min-height:40px;cursor:pointer;font:800 12.5px/1.1 Archivo,sans-serif;text-transform:uppercase;letter-spacing:.02em}
+.gbtn[aria-pressed="true"]{background:var(--a);color:var(--c)}
+.gbtn.food[aria-pressed="false"]{box-shadow:inset 0 0 0 2px var(--b)}
+.gbtn.hh[aria-pressed="false"]{box-shadow:inset 0 0 0 2px var(--o)}
+.vrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.warn{display:none;margin:10px 0 0;background:#fff3c4;border:1px solid #f1d36b;color:#5a4300;border-radius:12px;padding:9px 12px;font-size:13.5px}
+.warn.on{display:block}
+.vbtn{appearance:none;border:2px solid var(--a);background:transparent;color:var(--a);border-radius:999px;padding:9px 12px;min-height:52px;cursor:pointer;
+  font:900 15px/1 Archivo,sans-serif;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:background .2s,color .2s,transform .15s}
+.vbtn small{font:600 11px/1 Archivo,sans-serif;text-transform:none;letter-spacing:.01em;opacity:.8}
+.vbtn:hover{transform:translateY(-1px)}
+.vbtn[aria-pressed="true"]{background:var(--o);border-color:var(--o);color:var(--c)}
+.vbtn:focus-visible,.cbtn:focus-visible,.gbtn:focus-visible{outline:3px solid var(--b);outline-offset:2px}
+
+/* Ansicht */
+.stage{position:relative;margin-top:14px;border-radius:22px;overflow:hidden;background:#d8d4cf;aspect-ratio:16/9;touch-action:pan-y}
+.stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .45s ease}
+.stage img.on{opacity:1}
+.badge{position:absolute;left:14px;top:14px;background:var(--a);color:var(--c);border-radius:999px;padding:7px 14px;font:900 13px/1 Archivo;text-transform:uppercase;z-index:3}
+.full{position:absolute;right:12px;top:12px;z-index:3;background:rgba(252,250,247,.9);border:0;border-radius:999px;padding:8px 14px;font:800 12px/1 Archivo;text-transform:uppercase;color:var(--a);cursor:pointer;text-decoration:none}
+.cams{display:flex;gap:8px;overflow-x:auto;padding:12px 0 2px;scrollbar-width:none}
+.cams::-webkit-scrollbar{display:none}
+.cbtn{flex:none;appearance:none;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:10px 16px;min-height:44px;cursor:pointer;font:800 13px/1 Archivo;text-transform:uppercase}
+.cbtn[aria-pressed="true"]{background:var(--a);border-color:var(--a);color:var(--c)}
+.hint{color:var(--mute);font-size:13px;margin:6px 0 0}
+
+/* Variante */
+.info{display:grid;grid-template-columns:1.05fr 1fr;gap:18px;margin:26px 0}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px}
+.panel h2{margin:0 0 8px;font-weight:900;text-transform:uppercase;line-height:.95;font-size:clamp(26px,3.4vw,40px)}
+.panel h2 em{font-style:normal;color:var(--o)}
+.panel p{margin:0 0 10px}
+.fl{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.fl li{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.n{width:34px;height:34px;border-radius:50%;background:var(--o);color:var(--c);display:flex;align-items:center;justify-content:center;font:900 15px/1 Archivo}
+.fl b{display:block;font-weight:800;text-transform:uppercase;font-size:13px;letter-spacing:.02em}
+.fl span{color:#4a3940;font-size:14.5px}
+
+/* Flaechen */
+h3{font-weight:900;text-transform:uppercase;font-size:clamp(22px,2.6vw,30px);margin:34px 0 12px;line-height:1}
+.flats{display:grid;grid-template-columns:repeat(6,auto);gap:12px;align-items:end;overflow-x:auto;padding-bottom:6px}
+.flat{margin:0}
+.flat img{display:block;height:300px;width:auto;border-radius:10px;background:#ddd;box-shadow:0 1px 0 var(--line)}
+.flat figcaption{font:800 12px/1.25 Archivo;text-transform:uppercase;margin-top:7px;color:var(--a)}
+.flat figcaption i{font:500 12px Archivo;font-style:normal;text-transform:none;color:var(--mute);display:block}
+
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.checks li{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px 12px 44px;position:relative;font-size:14.5px}
+.checks li:before{content:"";position:absolute;left:14px;top:14px;width:18px;height:18px;border-radius:50%;background:var(--o) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 10.5l3 3 7-7' fill='none' stroke='%23FCFAF7' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/14px no-repeat}
+.notes{color:#4a3940;font-size:14.5px;padding-left:18px}
+.notes li{margin:4px 0}
+footer{margin:40px 0 30px;color:var(--mute);font-size:13px}
+
+@media (max-width:860px){
+  .info{grid-template-columns:1fr}
+  .flat img{height:220px}
+}
+@media (max-width:520px){
+  header{padding-top:16px}
+  .top svg{width:118px}
+  h1{font-size:clamp(28px,9vw,40px);margin:10px 0 6px}
+  .lead{font-size:14px;line-height:1.45}
+  .vbtn{font-size:12.5px;padding:8px 4px;min-height:50px;white-space:nowrap}
+  .vbtn small{font-size:10px;white-space:nowrap}
+  .stage{border-radius:14px;margin-top:10px}
+  .badge{font-size:11px;padding:6px 10px;left:10px;top:10px}
+  .full{font-size:11px;padding:7px 10px}
+  .panel{padding:18px;border-radius:18px}
+  .flat img{height:170px}
+}
+@media (max-width:420px){
+  .gbtn{font-size:9.5px;padding:6px 2px;min-height:40px;letter-spacing:0}
+  .warn{font-size:12.5px;padding:7px 10px}
+  .lead{display:none}
+  .kicker{font-size:11.5px}
+  .vbtn{font-size:11.5px}
+  .vbtn small{font-size:9.5px}
+  .badge,.full{font-size:9.5px;padding:5px 9px;top:8px}
+  .badge{left:8px}
+  .full{right:8px}
+}
+@media (prefers-reduced-motion:reduce){.stage img{transition:none}}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <div class="top">
+    <svg id="logo" viewBox="0 0 2208.16 795.03" aria-label="Mmaah Korean Street Food" role="img"><g id="Layer_1-2" data-name="Layer 1">
+    <g>
+      <g>
+        <path fill="#FF4005" d="M215.96,321.12C212.45,328.32,0,795.03,0,795.03h1745.67c93.36,0,132.63-57.33,151.62-97.94C1919.8,648.95,2208.16,0,2208.16,0c0,0-1681.44,191.24-1844.44,207.09-114.79,11.2-139.86,98.94-147.75,114.02"/>
+        <path fill="#fff" d="M2008.07,156.17c-22.37,0-40.29,15.71-40.29,37.72s17.92,37.72,40.29,37.72,40.17-15.92,40.17-37.72-17.92-37.72-40.17-37.72M2008.07,226.18c-19.09,0-34.23-13.74-34.23-32.29s15.14-32.27,34.23-32.27,34.13,13.51,34.13,32.27-15.14,32.29-34.13,32.29M1985.24,193.78c0,12.99,9.32,21.37,23.77,21.37,10.36,0,18.15-4.89,20.36-12.2l-15.83-5.89c-.23,2.61-1.52,4.78-4.66,4.78-3.38,0-5.93-1.96-5.93-8.06s2.55-8.06,5.93-8.06c3.13,0,4.43,2.17,4.66,4.8l15.83-5.99c-2.21-7.23-10-12.11-20.36-12.11-14.45,0-23.77,8.42-23.77,21.37"/>
+        <path fill="#fff" d="M1711.97,580.46c-9.86.33-19.32-1.34-28.34-5.24-20.18-8.79-27.32-25.82-19.49-46.62,4.91-13.14,13.43-23.64,24.17-32.21,22.66-18.07,48.4-27.05,77.37-25.71,8.58.4,16.9,2.44,24.6,6.54,16.48,8.77,22.83,24.23,17.44,42.32-4.28,14.41-12.95,25.77-24.38,35.01-20.82,16.86-44.7,25.48-71.37,25.92"/>
+        <path fill="#fff" d="M1810.24,442.55s137.39-276.42,139.27-279.84c2.74-5.03-1.92-5.03-1.92-5.03,0,0-140.01,14.2-144.64,14.77-4.66.54-5.39,4.62-5.39,4.62l-78.76,276.71s-1.11,4.43,3.91,3.68c4.37-.61,62.45-7.52,81.52-10.17,4.2-.58,6.02-4.72,6.02-4.72"/>
+        <path fill="#fff" d="M950.65,260.58c-5.85-1.9-12.22-3.11-18.34-3.26-34.25-.77-64.1,10.46-89.65,32.75,0,0-13.14,12.57-18.44,17.57-.08-.75-.21-1.96-.29-3.2-1-13.95-6.47-23.08-21.3-27.61-41.71-12.55-76.36,8.48-91.61,22.52,0,0-13.24,12.57-18.53,17.59-.08-.75-.13-1.96-.21-3.17-1.5-14.52-9.5-27.26-45.39-28.8-26.59-.77-51.72,12.41-65.27,24.48,0,0-13.39,12.55-18.67,17.5-.08-.73-.5-2.17-.58-3.38-2.49-15.94-18.71-24.71-48.77-24.79-23,.77-48.23,9.8-72.23,34.96l-2.97,2.97c3.32-10.57,4.99-17.75,8.52-28.95-2.4.23-3.91.33-5.39.5-24.4,2.53-54.31,5.54-83.86,8.61-3.76.38-4.26,1.21-5.22,2.9-12.91,22.85-88.5,190.7-114,242.54,0,0-12.01,16.29-11.84,16.29,29.2,0,91.09.06,91.28.04,3.4-.08,4.2-1.55,5.74-4.76,2.36-4.76,85.53-171.34,94.56-188.57,3.47-6.27,10.09-7.9,15.71-6.43,3.99.98,7.75,5.1,5.97,10.36-1.36,3.09-79.83,160.39-91.74,184.31-1.44,2.9-.04,5.03,3.07,5.01,21.24,0,85.34.04,86.87.06,3.74,0,4.07-1.44,5.68-4.78,1.9-3.88,92.61-187.92,98.11-198.68,2.42-5.62,8.69-8.17,14.77-6.45,4.93,1.29,8.23,5.72,6.31,10.78-1.09,3.72-82.48,170.83-93.99,194.52-1.36,2.76-.19,4.49,2.74,4.51,21.39.1,94.05.06,94.3,0,2.95-.21,3.74-1.67,5.22-4.72,2.32-4.78,102.7-210.79,103.95-213.01,3.68-6.56,7.39-8.88,14.83-7.62,6.58,1.42,9.02,7.69,7.39,11.28-1.46,2.84-87.33,178.52-102.35,209.41-1.36,2.82-.79,4.74,1.17,4.74,18.63.08,98.98-.04,99.03-.04,3.51-.04,4.32-1.5,5.89-4.76,2.3-4.7,1.29-3.36,108.09-224.66,3.49-7.41,9.86-9.27,15.94-7.37,7.14,2.05,7.83,7.87,6.2,12.28-2.65,5.76-78.68,156.23-80.08,178.65-1.65,18.36,5.35,34.99,29.14,42.36,22.75,6.5,41.48,5.41,64.16-.44,3.34-.84,5.28-2.55,6.75-5.7,16.25-34.71,33.67-71.35,50.17-105.98,20.62-43.22,41.48-86.33,62.08-129.54,5.22-10.97,9.25-22.35,10.42-34.65,1.73-18.55-6.41-32.65-23.33-38.14"/>
+        <path fill="#fff" d="M1102.04,575.24c17.13-41.19,119.72-296.28,138.27-342.25,2.51-6.2-2.4-5.39-2.4-5.39l-217.16,22.2,3.13,18.63s-126.24,265.72-144.73,305.39c-1.25,2.61-.38,4.76,2.15,4.76,13.93.06,61.12-.1,83.38,0,3.34,0,5.28-.98,6.83-4.07,5.49-12.91,16.71-40.65,21.56-52.51.71-1.42,1.88-3.2,5.35-3.55,1.63-.1,17.63-.79,27.93-1.15-4.03,10.34-15.33,38.18-22.77,56.62-1.21,3.17.65,4.72,3.53,4.7,20.51-.02,53.89-.02,90.63.02,2.11,0,3.76-1.88,4.43-3.63M1076.81,356.59c-2.07,6.79-12.7,44.78-22.33,82.48-1.78,7.21-7.25,6.98-11.03,7.39-12.89,1.11-19.47,1.4-19.47,1.4,17.71-38.77,28.72-56.21,46.31-94.62,0,0,7.81-.13,7.67-.13"/>
+        <path fill="#fff" d="M1346.04,573.82c41.27-107.55,125.41-326.88,140.11-365.15,1.23-3.17-1.4-5.33-3.17-5.12-46.7,4.76-166.43,16.92-204.09,20.76-3.13.31-4.72,1.5-5.85,4.32-42.46,105.12-126.05,311.49-139.57,345.16-1.17,2.95,2.03,4.8,4.01,4.8h76.49c3.03,0,4.55-1.27,5.72-3.84,5.05-12.55,20.24-50.09,25.13-62.41.63-1.29,1.61-3.05,4.85-3.17,3.13-.23,15.77-.69,25.63-1.04-6.14,15.73-19.4,48.5-26.53,65.77-.67,1.65-.17,4.68,3.57,4.7,26.88-.02,59.8,0,87.58-.02,3.74.02,4.97-1.67,6.12-4.76M1335.11,328.73c-2.09,6.96-15.08,50.92-24.71,88.62-1.8,7.19-7.31,6.77-11.11,7.19-12.85,1.15-19.88,1.38-19.88,1.38,17.73-38.77,30.29-60.07,47.87-98.46,0-.04,8.44-.17,8.29-.15"/>
+        <path fill="#fff" d="M1656.32,186.76c-2.76.27-4.53,1.52-5.51,4.28-4.34,11.82-65.42,170.38-79.2,206.3-.81,1.96-1.63,3.49-4.64,4.05-5.45.58-11.78,1.25-18.94,1.82,18.21-48.08,60.09-155.38,80.08-208.22.77-2.05.73-5.81-2.55-5.45-19.13,1.96-77.62,8.13-100.8,10.55-3.34.36-5.14,1.71-6.35,5.01-12.66,34-130.59,339.14-141.57,368.61-1.09,2.97.23,4.87,3.03,4.87,16.35.02,68.59.02,95.7.02,3.88,0,5.7-1.29,7.02-4.89,6.98-18.99,16.61-42.4,27.4-70.7.58-1.5,1.48-3.55,4.3-3.78,2.28-.13,12.18-.48,19.42-.71-18.38,48.48-12.07,30.6-28.93,75.26-.56,1.46.92,4.8,4.24,4.82,17.38.04,69.16,0,99.3.02,5.18.06,7.39-1.96,9.15-6.62,21.72-57.19,43.67-114.31,65.56-171.5,25.86-67.53,72.83-190.72,83.86-219.9.96-2.55.04-5.22-2.46-4.95"/>
+      </g>
+      <g>
+        <path fill="#fff" d="M225.46,635.08h26.37v38.91l.26.12,27.14-39.03h30.72l-30.85,41.59,32.64,46.45h-31.62l-28.03-42.44-.26.12v42.32h-26.37v-88.04Z"/>
+        <path fill="#fff" d="M315.95,679.1c0-25.66,21.25-45.36,49.54-45.36s49.54,19.7,49.54,45.36-21.12,45.36-49.54,45.36-49.54-19.7-49.54-45.36ZM388.66,679.1c0-13.13-9.34-23.23-23.17-23.23s-23.17,10.09-23.17,23.23,9.34,23.23,23.17,23.23,23.17-10.09,23.17-23.23Z"/>
+        <path fill="#fff" d="M430.9,635.08h37.25c10.11,0,18.31,1.95,25.09,6.69s11.01,12.04,11.01,21.52c0,11.19-5.89,19.7-15.74,24.32l23.3,35.51h-29.31l-19.33-31.62h-6.14v31.62h-26.11v-88.04ZM465.46,673.62c4.61,0,7.17-.61,9.34-2.07,2.18-1.46,3.33-4.13,3.33-7.17s-1.15-5.84-3.33-7.3c-2.18-1.46-4.74-2.07-9.34-2.07h-8.45v18.6h8.45Z"/>
+        <path fill="#fff" d="M521.01,635.08h60.42v21.16h-34.31v12.4h29.06v19.94h-29.06v13.38h35.84v21.16h-61.96v-88.04Z"/>
+        <path fill="#fff" d="M629.04,635.08h27.27l36.87,88.04h-28.67l-6.53-18h-31.75l-6.78,18h-27.27l36.87-88.04ZM651.18,686.64l-3.07-8.39c-1.79-4.99-3.97-11.06-5.63-16.42h-.26c-1.79,5.47-3.97,11.55-5.89,16.66l-3.07,8.15h17.92Z"/>
+        <path fill="#fff" d="M705.2,635.08h24.71l24.58,31.86c5.12,6.57,9.6,12.52,14.21,18.85h.26c-.13-7.54-.26-15.08-.26-22.5v-28.21h25.35v88.04h-24.71l-24.58-31.86c-5.12-6.57-9.6-12.52-14.21-18.85h-.26c.13,7.54.26,15.08.26,22.5v28.21h-25.35v-88.04Z"/>
+        <path fill="#fff" d="M878.25,703.66c5.89,0,9.47-1.95,9.47-6.2,0-3.28-2.3-4.86-7.81-6.57-5.5-1.7-17.15-3.89-24.32-8.39-7.17-4.5-10.88-10.82-10.88-20.06,0-18,13.7-28.7,34.69-28.7,9.47,0,21.51,2.31,30.21,6.44v22.62c-11.14-5.84-23.04-8.27-29.31-8.27-5.63,0-8.83,1.95-8.83,5.72,0,3.28,2.43,4.86,7.81,6.44,5.38,1.58,16.9,3.89,24.19,8.27s11.01,11.43,11.01,20.43c0,18.48-14.34,29.06-35.97,29.06-9.86,0-22.53-2.19-32-6.69v-23.71c11.78,6.93,25.35,9.61,31.75,9.61Z"/>
+        <path fill="#fff" d="M952.11,656.24h-29.44v-21.16h85.25v21.16h-29.44v66.88h-26.37v-66.88Z"/>
+        <path fill="#fff" d="M1020.46,635.08h37.25c10.11,0,18.31,1.95,25.09,6.69s11.01,12.04,11.01,21.52c0,11.19-5.89,19.7-15.74,24.32l23.3,35.51h-29.31l-19.33-31.62h-6.14v31.62h-26.11v-88.04ZM1055.02,673.62c4.61,0,7.17-.61,9.34-2.07,2.18-1.46,3.33-4.13,3.33-7.17s-1.15-5.84-3.33-7.3c-2.18-1.46-4.74-2.07-9.34-2.07h-8.45v18.6h8.45Z"/>
+        <path fill="#fff" d="M1110.57,635.08h60.42v21.16h-34.31v12.4h29.06v19.94h-29.06v13.38h35.84v21.16h-61.96v-88.04Z"/>
+        <path fill="#fff" d="M1188.78,635.08h60.42v21.16h-34.31v12.4h29.06v19.94h-29.06v13.38h35.84v21.16h-61.96v-88.04Z"/>
+        <path fill="#fff" d="M1290.41,656.24h-29.44v-21.16h85.25v21.16h-29.44v66.88h-26.37v-66.88Z"/>
+        <path fill="#fff" d="M1389.61,635.08h62.08v21.16h-35.71v13.25h30.47v19.94h-30.47v33.68h-26.37v-88.04Z"/>
+        <path fill="#fff" d="M1462.95,679.1c0-25.66,21.25-45.36,49.54-45.36s49.54,19.7,49.54,45.36-21.12,45.36-49.54,45.36-49.54-19.7-49.54-45.36ZM1535.66,679.1c0-13.13-9.34-23.23-23.17-23.23s-23.17,10.09-23.17,23.23,9.34,23.23,23.17,23.23,23.17-10.09,23.17-23.23Z"/>
+        <path fill="#fff" d="M1574.69,679.1c0-25.66,21.25-45.36,49.54-45.36s49.54,19.7,49.54,45.36-21.12,45.36-49.54,45.36-49.54-19.7-49.54-45.36ZM1647.4,679.1c0-13.13-9.34-23.23-23.17-23.23s-23.17,10.09-23.17,23.23,9.34,23.23,23.17,23.23,23.17-10.09,23.17-23.23Z"/>
+        <path fill="#fff" d="M1689.64,635.08h36.35c15.36,0,27.78,4.62,36.35,12.65s13.31,18.73,13.31,31.37c0,11.92-4.22,22.86-12.8,31.01s-20.74,13.01-36.74,13.01h-36.48v-88.04ZM1742.63,695.63c4.35-4.01,6.66-9.97,6.66-16.54s-2.3-12.52-6.66-16.54c-4.35-4.01-9.98-6.32-16.9-6.32h-9.73v45.72h9.73c6.91,0,12.54-2.31,16.9-6.32Z"/>
+      </g>
+    </g>
+  </g>
+</svg>
+    <div class="kicker">Kiosk Bahnhof · Beklebung Flächen 1 bis 6</div>
+  </div>
+  <h1>Vierzehn Varianten.<br><span>Ein Kiosk.</span> Maximal Mmaah.</h1>
+  <p class="lead">Hohe Laufkundschaft, kleine Logos. Die Flächen müssen allein zeigen, dass hier Korean Street Food, Korean BBQ und Fried Chicken schnell zu haben sind. Runde 1 bis 3 nur mit Text, ohne Körperteile und Essensbilder, die Runde Mit Food als Vergleich. Neu: Hamburg exakt, nach dem echten Grundriss und im aktuellen Storedesign. Designsprache 1 zu 1 von mmaah.de. Oben umschalten, die Kamera bleibt gleich.</p>
+</header>
+
+<nav class="switch" aria-label="Variante wählen">
+  <div class="wrap">
+    <div class="groups" id="groups" role="group" aria-label="Runde"></div>
+    <div class="vrow" id="vrow" role="group" aria-label="Variante"></div>
+  </div>
+</nav>
+
+<main class="wrap">
+  <p class="warn" id="warn">Diese Variante zeigt Essensbilder. Der Eigentümer hat Essensbilder bisher abgelehnt, sie ist als Vergleich gedacht.</p>
+  <div class="stage" id="stage">
+    <span class="badge" id="vbadge"></span>
+    <a class="full" id="full" href="#" target="_blank" rel="noopener">Groß öffnen</a>
+  </div>
+  <div class="cams" id="cams" role="group" aria-label="Ansicht wählen"></div>
+  <p class="hint">Tasten 1, 2, 3 wählen in der Runde, Pfeil hoch und runter blättert durch alle zwölf, links und rechts wechseln die Ansicht. Am Handy auf dem Bild wischen.</p>
+
+  <section class="info">
+    <div class="panel">
+      <div class="kicker" id="vkick"></div>
+      <h2 id="vtitle"></h2>
+      <p id="videa"></p>
+      <p id="vwhy" style="color:var(--mute)"></p>
+    </div>
+    <div class="panel">
+      <ul class="fl" id="vlist"></ul>
+    </div>
+  </section>
+
+  <h3>Flächen im Detail</h3>
+  <div class="flats" id="flats"></div>
+  <p class="hint">Ansicht von außen, grau ist Milchglas, hellblau ist klares Glas, dunkle Linien sind die Profile. Die Screens zeigen im Kiosk das echte Menuboard.</p>
+
+  <h3>Vorgaben aus dem Briefing</h3>
+  <ul class="checks">
+    <li>Keine Körperteile, kein Mund, keine Hand. Keine Essensbilder in Runde 1 bis 3</li>
+    <li>Nur die Flächen 1 bis 6 bespielt, unter dem Tresen bleibt alles leer</li>
+    <li>Statt der großen Schilder nur zwei kleine Mmaah Logos</li>
+    <li>Logo mit KOREAN STREET FOOD gut sichtbar untergebracht</li>
+    <li>Fläche 3 mit EAT KOREAN SINCE 2012 als 3D Lettern ohne Mund auf Aubergine</li>
+    <li>Fläche 5 bleibt durchsichtig, Druck nur oben oder ganz unten</li>
+    <li>SOTs in echter Höhe: Hauptbotschaft auf Fläche 1 sitzt darüber, über 2 m</li>
+    <li>Auf einen Blick klar: QSR, Korean Street Food, Korean BBQ und Fried Chicken</li>
+  </ul>
+
+  <h3>Hinweise</h3>
+  <ul class="notes">
+    <li>Visualisierung mit echtem Raytracing (Blender Cycles). Varianten 1 bis 12 stehen im Modell nach der ersten Skizze. Hamburg exakt (13 und 14) ist nach dem Grundriss Hamburg HBF von Jahn GmbH (Index E) gebaut: Eckladen 26,52 m², Raumhöhe 2,60 m, Loftwände, Glastür, Menuboards und Durchgang wie im Plan. Ansicht Links ist dort die Ostseite, Rechts die Nordseite.</li>
+    <li>Runde Mit Food: Produkte sind echte freigestellte Fotos von Mmaah, nur Eiswürfel und Splash sind ein Effekt aus Higgsfield.</li>
+    <li>먹자 ist aus dem Bestand der Guideline. Jedes koreanische Wort geben Andreas oder Sebastian vor dem Druck frei.</li>
+    <li>Variante 7 braucht LED Flächen hinter der Folie, Variante 8 exakte Maße und den genauen Standpunkt für die Illusion.</li>
+    <li>ORDER HERE auf Englisch wie die Programmzeilen. Auf Wunsch auch HIER BESTELLEN.</li>
+  </ul>
+</main>
+<footer class="wrap">Entwurf von Shuto Crew für Mmaah, Stand 12.11.2026. Nicht zur Veröffentlichung.</footer>
+<script>
+const GROUPS = [
+  {id:"r1", name:"Runde 1", vs:["v1","v2","v3"]},
+  {id:"r2", name:"Guerilla", vs:["v4","v5","v6"]},
+  {id:"r3", name:"Noch kreativer", vs:["v7","v8","v9"]},
+  {id:"r4", name:"Mit Food", vs:["v10","v11","v12"], food:true},
+  {id:"r5", name:"Hamburg exakt", vs:["v13","v14"], hh:true}
+];
+const V = {
+  v1: {nr:"1", name:"Sticker", sub:"Sehr kreativ", kick:"Variante 1 · sehr kreativ",
+    title:"Die Website<br>wird <em>Fassade</em>",
+    idea:"Die gekippten Sticker von mmaah.de werden groß: orange Karte, blaues EAT KOREAN Badge, gelbe 먹자 Rosette, Pills wie die Buttons der Website. Bunt, verspielt, laut. Der Kiosk wird zum auffälligsten Punkt der Halle, ganz ohne Bilder.",
+    why:"Stark für Aufmerksamkeit im Vorbeigehen. Mutigste Variante der ersten Runde, braucht das Okay des Eigentümers für die vielen Farben.",
+    f:["Orange Karte KOREAN FRIED CHICKEN oben über den SOTs, ORDER HERE zeigt auf die Terminals, darunter Badge, Rosette, KOREAN BBQ und TO GO.",
+       "Blau wie die Franchise Karte der Website, STREET FOOD zweifarbig.",
+       "Aubergine mit 3D Lettern EAT KOREAN SINCE 2012 먹자 in Creme.",
+       "Orange wie die Jobs Karte der Website: KOREAN BBQ & FRIED CHICKEN, ORDER HERE über den Kassen.",
+       "Nur ein kleines Badge ganz unten, Sicht nach draußen bleibt frei.",
+       "Logo mit KOREAN STREET FOOD groß als Sticker, dazu KOREAN BBQ, STREET FOOD und RICE · BBQ FRIES · VEGAN."]},
+  v2: {nr:"2", name:"Klar", sub:"Minimalistisch", kick:"Variante 2 · minimalistisch",
+    title:"Zwei Farben.<br><em>Eine Aussage.</em>",
+    idea:"Orange auf Milchglas, genau wie Orange auf Creme auf der Website. Die Wände in Aubergine. Jede Fläche sagt nur eine Sache, dafür riesig: KOREAN FRIED CHICKEN, KOREAN BBQ, 먹자 und das Logo mit KOREAN STREET FOOD.",
+    why:"Ruhig und hochwertig, passt am leichtesten zum einheitlichen Look des Bahnhofs und ist auf große Distanz am schnellsten lesbar.",
+    f:["KOREAN FRIED CHICKEN in Orange ganz oben, über den SOTs. Daneben ORDER HERE.",
+       "Aubergine mit 먹자 in Orange.",
+       "Aubergine mit 3D Lettern EAT KOREAN SINCE 2012 먹자 in Creme.",
+       "Aubergine mit dem Logo KOREAN STREET FOOD in voller Breite unter den Screens.",
+       "Nur 먹자 oben im Oberlicht, darunter klares Glas.",
+       "KOREAN BBQ in Orange, so groß wie möglich."]},
+  v3: {nr:"3", name:"Band", sub:"Unser Vorschlag", kick:"Variante 3 · unser Vorschlag",
+    title:"Ein Band<br><em>über den Köpfen</em>",
+    idea:"Ein orange Band läuft oben über alle Glasflächen, auf 2,15 bis 2,75 m. Darin das Logo mit KOREAN STREET FOOD und KOREAN BBQ & FRIED CHICKEN. Darunter das Programm groß und zweifarbig, dazu ORDER HERE über SOTs und Kassen.",
+    why:"Im vollen Bahnhof verdecken Menschen und SOTs alles unter etwa 2 m. Das Band bleibt von überall sichtbar und macht aus dem Kiosk ein Mmaah Objekt, obwohl die echten Logos klein sind.",
+    f:["Band mit Logo und Programm, ORDER HERE über den SOTs, darunter FRIED CHICKEN zweifarbig.",
+       "Orange statt Aubergine, 먹자 in Creme, damit die linke Theke leuchtet.",
+       "Aubergine mit 3D Lettern EAT KOREAN SINCE 2012 먹자 in Creme.",
+       "Aubergine mit Logo KOREAN STREET FOOD und ORDER HERE über den Kassen.",
+       "Band läuft oben weiter, mit 먹자. Darunter klares Glas.",
+       "Band mit Logo und Programm, KOREAN BBQ groß, darunter BUL GOGI · BBQ FRIES · RICE DISHES."]},
+  v4: {nr:"4", name:"Abfahrt", sub:"Bahnhof", kick:"Variante 4 · Guerilla, der Kiosk spricht Bahnhof",
+    title:"Alles fährt<br><em>sofort</em> ab",
+    idea:"Eine Abfahrtstafel in Mmaah Farben listet FRIED CHICKEN, KOREAN BBQ und STREET FOOD, alles mit Abfahrt SOFORT. Dazu GLEIS 먹자, ZUG VERSPÄTET? WIR NICHT. und NÄCHSTER HALT: KOREA.",
+    why:"Reisende verstehen die Tafel in einer Sekunde und schmunzeln. Zeigt Tempo, also QSR, ohne ein einziges Bild. Bewusst nicht im Stil der echten Bahnanzeigen, damit nichts mit der Beschilderung verwechselt wird.",
+    f:["Abfahrtstafel ganz oben über den SOTs, darunter HIER EINSTEIGEN auf die Terminals und das Schild GLEIS 먹자.",
+       "Aubergine: NÄCHSTER HALT: KOREA.",
+       "3D Lettern EAT KOREAN SINCE 2012 먹자.",
+       "Orange mit weißem Logo KOREAN STREET FOOD, darunter ABFAHRT: SOFORT.",
+       "Oberlicht als Gleisschild GLEIS 먹자, darunter klar.",
+       "ZUG VERSPÄTET? WIR NICHT. riesig, darunter das Programm und das Logo."]},
+  v5: {nr:"5", name:"Hey Du", sub:"Ansprache", kick:"Variante 5 · Guerilla, direkte Ansprache",
+    title:"Der Kiosk<br><em>quatscht</em> dich an",
+    idea:"Sprechblasen wie die Karten der Website sprechen Reisende direkt an: HEY, DU MIT DEM KOFFER. JA, GENAU DU. Auf der anderen Seite: NOCH 7 MINUTEN BIS ZUM ZUG? REICHT FÜR KOREAN BBQ. UND FRIED CHICKEN.",
+    why:"Wer angesprochen wird, schaut hin. Jede Seite ist ein kleines Gespräch und liest sich beim Vorbeigehen weiter. Die 7 Minuten vorher mit dem Store abstimmen.",
+    f:["HEY, DU MIT DEM KOFFER. oben, JA, GENAU DU. und HUNGER? HIER BESTELLEN mit Pfeil zu den SOTs.",
+       "Blau mit Sprechblase LET'S EAT. 먹자.",
+       "3D Lettern EAT KOREAN SINCE 2012 먹자.",
+       "Logo KOREAN STREET FOOD, darunter Sprechblase HIER BESTELLEN. über den Kassen.",
+       "Nur eine kleine Blase PSST. oben, Sicht frei.",
+       "NOCH 7 MINUTEN BIS ZUM ZUG? REICHT FÜR KOREAN BBQ. UND FRIED CHICKEN., dazu das Logo."]},
+  v6: {nr:"6", name:"Krrrck", sub:"Sound", kick:"Variante 6 · Guerilla, Sound statt Bild",
+    title:"Essen zeigen<br>verboten? <em>Hören!</em>",
+    idea:"Wir dürfen kein Essen zeigen, also lassen wir es hören. Riesige schräge Lautmalerei wie das Logo: KRRRRCK! für Fried Chicken, TSSSSSS! für Korean BBQ, dazu die echten Glasuren SOY GARLIC und YANGNYOM und Gerichte von der Karte.",
+    why:"Der Kopf baut das Bild selbst, das macht mehr Hunger als ein Foto. Passt zum Markenkern: Mmaah ist der Laut, wenn's schmeckt.",
+    f:["KRRRRCK! und SO KLINGT KOREAN FRIED CHICKEN. oben, ORDER HERE über den SOTs, SOY GARLIC. YANGNYOM.",
+       "Orange: KRCK! TSSS! KRCK!",
+       "3D Lettern EAT KOREAN SINCE 2012 먹자.",
+       "Logo, darunter SO KLINGT'S, WENN'S SCHMECKT.",
+       "Nur KRCK. oben, sonst klar.",
+       "TSSSSSS! und SO KLINGT KOREAN BBQ., darunter BUL GOGI. BBQ FRIES. GANGNAM BEEF."]},
+  v7: {nr:"7", name:"Leuchtkasten", sub:"Licht", kick:"Variante 7 · noch kreativer, Licht",
+    title:"Der Kiosk<br><em>leuchtet</em>",
+    idea:"Statt Milchglas eine Aubergine Folie, aus der die Schrift ausgeschnitten und von hinten beleuchtet ist. Die Glasflächen werden zu Leuchtkästen: KOREAN FRIED CHICKEN, KOREAN BBQ, STREET FOOD und 먹자 glühen in Orange und Creme. Dazu OPEN als Leuchtschrift über den Kassen.",
+    why:"Im Bahnhof ist Licht das stärkste Signal, gerade abends und im Winter. Braucht LED Flächen hinter der Folie und das Okay des Eigentümers für Licht.",
+    f:["Aubergine Leuchtkasten mit KOREAN FRIED CHICKEN und großem 먹자, ORDER HERE über den SOTs.",
+       "Leuchtrahmen mit 먹자 in Creme.",
+       "3D Lettern EAT KOREAN SINCE 2012 먹자.",
+       "Logo gedruckt, darunter OPEN als Leuchtschrift.",
+       "Nur das Oberlicht leuchtet mit 먹자, darunter klar.",
+       "KOREAN BBQ und STREET FOOD leuchtend, Logo gedruckt ohne Effekt."]},
+  v8: {nr:"8", name:"Anamorph", sub:"3D Illusion", kick:"Variante 8 · noch kreativer, 3D Illusion",
+    title:"Nur von hier<br><em>perfekt</em>",
+    idea:"Ein orange Band mit KOREAN STREET FOOD · KOREAN BBQ & FRIED CHICKEN · 먹자 läuft schräg über Glas, Wände und Ecke. Von der Ecke aus wirkt es wie ein einziges gerades Band vor dem Kiosk. Von überall sonst zerfällt es in Teile.",
+    why:"Klassischer Guerilla Effekt: Leute bleiben stehen, suchen den Punkt und machen Fotos. Ansicht Ecke mit Links oder Rechts vergleichen. Lücken bleiben dort, wo nur die Flächen 1 bis 6 bespielt werden dürfen und Fläche 5 durchsichtig bleibt. Für den Druck brauchen wir exakte Maße und den genauen Standpunkt.",
+    f:["Anfang des Bands, perspektivisch verzerrt.",
+       "Mittelteil, verzerrt.",
+       "Band läuft hinter den 3D Lettern durch.",
+       "Mittelteil, verzerrt.",
+       "Nur im Oberlicht, darunter klar.",
+       "Ende des Bands mit 먹자, dazu das Logo flach."]},
+  v9: {nr:"9", name:"Wortsuche", sub:"Mitmachen", kick:"Variante 9 · noch kreativer, Mitmachen",
+    title:"Warten?<br><em>Mitspielen.</em>",
+    idea:"Fläche 6 wird ein riesiger Buchstabensalat: FINDE 5 WÖRTER, BEVOR DEIN ZUG KOMMT. Versteckt sind CHICKEN, BULGOGI, KIMCHI, MANDU und BBQ, zwei sind schon markiert. Fläche 1 ist ein Kreuzworträtsel mit Kästchen, die Lösung auf der Wand ist 먹자.",
+    why:"Wartende haben Zeit und schauen länger hin. Alle Wörter stehen auf der Karte, man lernt nebenbei das Programm.",
+    f:["Kreuzwort: 1 WAAGERECHT FRIED CHICKEN, 2 SENKRECHT 먹자, ORDER HERE über den SOTs.",
+       "Orange: LÖSUNG: 먹자.",
+       "3D Lettern EAT KOREAN SINCE 2012 먹자.",
+       "Logo, darunter ALLE WÖRTER GIBT'S HIER ZU ESSEN.",
+       "Zwei Kästchen 먹 자 oben, darunter klar.",
+       "FINDE 5 WÖRTER, BEVOR DEIN ZUG KOMMT. und der Buchstabensalat."]},
+  v10: {nr:"10", name:"Flying", sub:"Mit Food", food:true, kick:"Variante 10 · mit Essensbildern",
+    title:"Fliegende<br><em>Bites</em>",
+    idea:"Die Bühne aus dem Menü von mmaah.de: Aubergine und blaue Blobs, darauf fliegen echte Chicken Bites, und die Blue Lemonade spritzt mit Eiswürfeln über die Scheibe. Dazu Wappen in der Form des EAT KOREAN Badges: BOLD KOREAN FLAVOURS, CRISPY CHICKEN BITES.",
+    why:"Maximal appetitlich und trotzdem im Website Look. Produkte sind echte Fotos des Kunden, nur Eiswürfel und Splash kommen aus Higgsfield.",
+    f:["KOREAN FRIED CHICKEN auf Aubergine Blob mit fliegenden Bites, Wappen BOLD KOREAN FLAVOURS, ORDER HERE.",
+       "Orange mit fliegenden Bites und Wappen CRISPY CHICKEN BITES.",
+       "3D Lettern EAT KOREAN SINCE 2012 먹자.",
+       "Logo, BBQ Reis Tray und ORDER HERE.",
+       "Eiswürfel und Splash oben, darunter klar.",
+       "BLUE LEMONADE groß auf blauem Blob mit Eis und Splash, Wappen EAT KOREAN SINCE 2012, Bites."]},
+  v11: {nr:"11", name:"Sticker Food", sub:"Mit Food", food:true, kick:"Variante 11 · mit Essensbildern",
+    title:"Produkte als<br><em>Sticker</em>",
+    idea:"Die Sticker Welt aus Variante 1, jetzt mit Produkten: Chicken Bites, Blue Lemonade und BBQ Tray als gestanzte Sticker mit weißem Rand, dazu Wappen BOLD KOREAN FLAVOURS und KOREAN STREET FOOD, Rosette und Karten.",
+    why:"Verspielt wie die Website, die Produkte wirken aufgeklebt und nicht wie klassische Werbefotos.",
+    f:["Karte KOREAN FRIED CHICKEN, Bites Sticker, Wappen BOLD KOREAN FLAVOURS, ORDER HERE, Lemonade Sticker, TO GO.",
+       "Blau mit STREET FOOD und Bites Sticker.",
+       "3D Lettern EAT KOREAN SINCE 2012 먹자.",
+       "Orange: KOREAN BBQ & FRIED CHICKEN, Tray Sticker, Wappen.",
+       "Kleiner Bites Sticker oben, darunter klar.",
+       "Logo groß, Lemonade und Tray als Sticker, KOREAN BBQ, Wappen KOREAN STREET FOOD, Rosette 먹자."]},
+  v12: {nr:"12", name:"XXL", sub:"Mit Food", food:true, kick:"Variante 12 · mit Essensbildern",
+    title:"Billboard<br><em>auf Glas</em>",
+    idea:"Riesig und angeschnitten wie ein Plakat: ein Berg Chicken Bites auf Orange, die Blue Lemonade auf Blau mit Eiswürfeln quer über die Scheibe, dazu Mango Passion Ade und der BBQ Tray an der Wand.",
+    why:"Die stärkste Fernwirkung aller Varianten, das Essen ist aus großer Entfernung zu sehen.",
+    f:["Orange bis rund 1,6 m: KOREAN FRIED CHICKEN und riesige Bites, Wappen BOLD KOREAN FLAVOURS.",
+       "Aubergine mit fliegenden Bites und Wappen CRISPY CHICKEN BITES.",
+       "3D Lettern EAT KOREAN SINCE 2012 먹자.",
+       "Orange mit weißem Logo, BBQ Tray groß und Wappen.",
+       "Blaues Oberlicht mit Eiswürfeln, darunter klar.",
+       "BLUE LEMONADE. riesig auf Blau mit Eis und Splash, Wappen, Mango Passion Ade."]},
+  v13: {nr:"13", name:"Store", sub:"Wallpaper + Food", kick:"Variante 13 · Hamburg HBF exakt, aktuelles Storedesign",
+    title:"Wie im Store.<br><em>Zeitlos.</em>",
+    idea:"Exakt nach dem Grundriss Hamburg HBF und so nah wie möglich am aktuellen Storedesign aus Tegel: Das Store Wallpaper mit der Seoul Linienzeichnung kommt auf die Milchglasfolie, darauf echte Food Visuals. Oben ruhige Schrift, KOREAN FRIED CHICKEN in Blau und & KOREAN BBQ in Rot. Die schwarze Wand trägt EAT KOREAN SINCE 2012 먹자 wieder mit Mund, KOREAN STREET FOOD sitzt direkt unter dem Logo.",
+    why:"Weniger Störer und weniger Botschaften, alles im Raster der Loftwände. Das untere Glaselement bleibt frei, die Glastür bleibt durchsichtig. Das Wallpaper stammt aus der Tegel Studie, für den Druck brauchen wir die Vektordatei vom Interior Designer.",
+    f:["Oben ORDER HERE und EAT ANYWHERE je Feld über den SOTs, darunter Wallpaper mit Blue Lemonade, unteres Element frei.",
+       "Store Wallpaper, darunter STRAIGHT OUTTA KOREA auf Rot.",
+       "Schwarze Wand mit EAT KOREAN SINCE 2012 먹자 und Mund als 3D Lettern.",
+       "Rot wie die Storewände, KOREAN STREET FOOD über den Menuboards direkt unter dem Logo. Rechte Hälfte hinter der Personaltür mit Wallpaper.",
+       "Nur ORDER HERE klein in der Mitte, Durchsicht bleibt.",
+       "KOREAN FRIED CHICKEN & KOREAN BBQ oben, darunter Wallpaper mit Chicken und BBQ Tray, unteres Element frei."]},
+  v14: {nr:"14", name:"Bildfolie", sub:"Vollflächig", kick:"Variante 14 · Hamburg HBF exakt, vollflächig mit Essen",
+    title:"Folie als<br><em>Bild</em>",
+    idea:"Vollflächige Bildfolien mit Essen. Das schräge Logo Parallelogramm wird zur großen Grafik: KOREAN FRIED CHICKEN auf Orange, die Chicken Bites brechen darüber. Daneben die Blue Lemonade mit Eiswürfeln auf Blau, die Wände in Orange und Aubergine mit KOREAN STREET FOOD und BOLD KOREAN FLAVOURS.",
+    why:"Maximale Fernwirkung und Appetit. Nach Andreas' Vorgabe bleibt auch hier das untere Glaselement frei und die Glastür durchsichtig.",
+    f:["Aubergine Leiste mit ORDER HERE und EAT ANYWHERE, darunter Blue Lemonade mit Eis auf Blau.",
+       "Aubergine mit orangem Band STRAIGHT OUTTA KOREA und Bites.",
+       "Schwarze Wand mit EAT KOREAN SINCE 2012 먹자 und Mund als 3D Lettern.",
+       "Orange: KOREAN STREET FOOD über den Menuboards, darunter BOLD KOREAN FLAVOURS und BBQ Tray.",
+       "Oberlicht Orange mit Logo KOREAN STREET FOOD, die Tür bleibt durchsichtig.",
+       "Aubergine mit orangem Band KOREAN FRIED CHICKEN und riesigen Bites."]}
+};
+const FNAMES = ["Milchglas links","Wand links","Eckwand","Wand rechts","Glas mit Durchsicht","Milchglas rechts"];
+const FNAMES_HH = ["Loftwand Ost","Wand Osttheke","Wand am Durchgang","Rückwand","Glastür Personal","Loftwand Nord"];
+const FL_HH = [["f1","Fläche 1","Loftwand Ost, 1,70 × 2,60 m"],["f2","Fläche 2","Wand Osttheke, 1,07 × 2,60 m"],["f3","Fläche 3","Wand am Durchgang, 0,83 × 2,60 m, 3D Lettern"],
+            ["f4","Fläche 4","Rückwand, 2,71 × 2,60 m"],["f5","Fläche 5","Glastür, 0,85 × 2,60 m"],["f6","Fläche 6","Loftwand Nord, 2,02 × 2,60 m"]];
+
+const CAMS = [["hero","Ecke"],["uebersicht","Von oben"],["links","Links"],["rechts","Rechts"],["nah3","Nah"]];
+const FL = [["f1","Fläche 1","Milchglas links, 2,80 × 2,70 m"],["f2","Fläche 2","Wand links, 1,30 × 3,05 m"],["f3","Fläche 3","Eckwand, 1,00 × 3,05 m, 3D Lettern"],
+            ["f4","Fläche 4","Wand rechts, 2,10 × 3,05 m"],["f5","Fläche 5","Glas, 0,80 × 2,70 m"],["f6","Fläche 6","Milchglas rechts, 2,80 × 2,70 m"]];
+const ALL = Object.keys(V);
+const groupOf = v => GROUPS.find(g => g.vs.includes(v));
+let cur = {v: "v3", c: "hero"};
+try { const s = JSON.parse(localStorage.getItem("mmaah_kiosk") || "{}"); if (V[s.v]) cur.v = s.v; if (CAMS.some(c => c[0] === s.c)) cur.c = s.c; } catch (e) {}
+const q = new URLSearchParams(location.search);
+if (V[q.get("v")]) cur.v = q.get("v");
+if (CAMS.some(c => c[0] === q.get("c"))) cur.c = q.get("c");
+
+const stage = document.getElementById("stage");
+const imgs = {};
+function img(c, v) {
+  const k = c + v;
+  if (imgs[k]) return imgs[k];
+  const im = new Image();
+  im.alt = `Mmaah Kiosk, Variante ${V[v].nr} ${V[v].name}, Ansicht ${CAMS.find(x => x[0] === c)[1]}`;
+  im.decoding = "async"; im.dataset.v = v; im.dataset.c = c;
+  im.src = `img/${c}_${v}_m.jpg`;
+  stage.appendChild(im);
+  return imgs[k] = im;
+}
+
+const gb = document.getElementById("groups"), vb = document.getElementById("vrow");
+for (const g of GROUPS) {
+  const b = document.createElement("button");
+  b.className = "gbtn" + (g.food ? " food" : "") + (g.hh ? " hh" : ""); b.type = "button"; b.dataset.g = g.id; b.textContent = g.name;
+  b.onclick = () => set({v: g.vs.includes(cur.v) ? cur.v : g.vs[0]});
+  gb.appendChild(b);
+}
+const cb = document.getElementById("cams");
+for (const [k, l] of CAMS) {
+  const b = document.createElement("button");
+  b.className = "cbtn"; b.dataset.c = k; b.type = "button"; b.textContent = l;
+  b.onclick = () => set({c: k});
+  cb.appendChild(b);
+}
+
+function set(p) {
+  Object.assign(cur, p);
+  const g = groupOf(cur.v);
+  // Bilder der aktuellen Ansicht fuer die Gruppe vorladen
+  for (const v of g.vs) img(cur.c, v);
+  img(cur.c, cur.v);
+  for (const im of Object.values(imgs)) im.classList.toggle("on", im.dataset.v === cur.v && im.dataset.c === cur.c);
+  document.querySelectorAll(".gbtn").forEach(b => b.setAttribute("aria-pressed", b.dataset.g === g.id));
+  vb.innerHTML = "";
+  for (const v of g.vs) {
+    const d = V[v], b = document.createElement("button");
+    b.className = "vbtn"; b.type = "button"; b.dataset.v = v; b.setAttribute("aria-pressed", v === cur.v);
+    b.innerHTML = `${d.nr} · ${d.name}<small>${d.sub}</small>`;
+    b.onclick = () => set({v});
+    vb.appendChild(b);
+  }
+  document.querySelectorAll(".cbtn").forEach(b => b.setAttribute("aria-pressed", b.dataset.c === cur.c));
+  const d = V[cur.v];
+  document.getElementById("warn").classList.toggle("on", !!d.food);
+  document.getElementById("vbadge").textContent = `Variante ${d.nr} · ${d.name}`;
+  document.getElementById("full").href = `img/${cur.c}_${cur.v}.jpg`;
+  document.getElementById("vkick").textContent = d.kick;
+  document.getElementById("vtitle").innerHTML = d.title;
+  document.getElementById("videa").textContent = d.idea;
+  document.getElementById("vwhy").textContent = d.why;
+  const hh = !!g.hh;
+  document.getElementById("vlist").innerHTML = d.f.map((x, i) => `<li><span class="n">${i + 1}</span><div><b>${(hh ? FNAMES_HH : FNAMES)[i]}</b><span>${x}</span></div></li>`).join("");
+  document.getElementById("flats").innerHTML = (hh ? FL_HH : FL).map(([k, n, m]) =>
+    `<figure class="flat"><img src="flaechen/${cur.v}/${k}.jpg" alt="${n}, Variante ${d.nr}" loading="lazy"><figcaption>${n}<i>${m}</i></figcaption></figure>`).join("");
+  try { localStorage.setItem("mmaah_kiosk", JSON.stringify(cur)); } catch (e) {}
+  try { history.replaceState(null, "", `?v=${cur.v}&c=${cur.c}`); } catch (e) {}
+}
+
+document.addEventListener("keydown", e => {
+  if (e.target.closest("input,textarea")) return;
+  const cs = CAMS.map(c => c[0]), g = groupOf(cur.v);
+  if (["1", "2", "3"].includes(e.key)) set({v: g.vs[+e.key - 1]});
+  if (e.key === "ArrowDown") { e.preventDefault(); set({v: ALL[(ALL.indexOf(cur.v) + 1) % ALL.length]}); }
+  if (e.key === "ArrowUp") { e.preventDefault(); set({v: ALL[(ALL.indexOf(cur.v) + ALL.length - 1) % ALL.length]}); }
+  if (e.key === "ArrowRight") set({c: cs[(cs.indexOf(cur.c) + 1) % cs.length]});
+  if (e.key === "ArrowLeft") set({c: cs[(cs.indexOf(cur.c) + cs.length - 1) % cs.length]});
+});
+let sx = null;
+stage.addEventListener("touchstart", e => { sx = e.touches[0].clientX; }, {passive: true});
+stage.addEventListener("touchend", e => {
+  if (sx === null) return;
+  const dx = e.changedTouches[0].clientX - sx; sx = null;
+  if (Math.abs(dx) < 40) return;
+  const i = ALL.indexOf(cur.v);
+  set({v: ALL[(i + (dx < 0 ? 1 : ALL.length - 1)) % ALL.length]});
+});
+set({});
+</script>
+</body>
+</html>
